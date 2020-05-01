@@ -24,7 +24,7 @@ namespace Al
             _logger = logger;
         }
 
-        public void AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
+        public Result<T> AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
         {
             if (_logger != null)
             {
@@ -33,17 +33,20 @@ namespace Al
 
             AddError(userMessage, adminMessage, errorCode);
 
+            return this;
         }
 
-        public void AddError(string userMessage, string adminMessage = null, int errorCode = 0)
+        public Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0)
         {
             Success = false;
             UserMessage = userMessage;
             AdminMessage = adminMessage;
             ErrorCode = errorCode;
+
+            return this;
         }
 
-        public void AddError(Exception e, string userMessage, int errorCode = 0)
+        public Result<T> AddError(Exception e, string userMessage, int errorCode = 0)
         {
             var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
@@ -53,6 +56,8 @@ namespace Al
             }
 
             AddError(userMessage, message, errorCode);
+
+            return this;
         }
 
         /// <summary>
@@ -60,13 +65,15 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public void AddSuccess(string userMessage, string adminMessage = null)
+        public Result<T> AddSuccess(string userMessage, string adminMessage = null)
         {
             if (Success)
             {
                 UserMessage = userMessage;
                 AdminMessage = adminMessage;
             }
+
+            return this;
         }
 
         /// <summary>

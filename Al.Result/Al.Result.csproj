@@ -4,7 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Alexander Paniukhin</Authors>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <Description>add return this</Description>
   </PropertyGroup>
 
   <ItemGroup>
