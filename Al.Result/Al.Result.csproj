@@ -3,9 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Alexander Paniukhin</Authors>
-    <Version>1.0.5</Version>
-    <Description>add return this</Description>
+    <Authors>Alexander Pantiukhin</Authors>
+    <Version>1.0.6</Version>
+    <Description></Description>
+    <Company>Alexander Pantiukhin</Company>
   </PropertyGroup>
 
   <ItemGroup>
