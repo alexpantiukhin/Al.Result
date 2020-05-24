@@ -79,5 +79,11 @@ namespace Al
         {
             return Success.ToString();
         }
+
+        public Result<T> Convert<T>()
+        {
+            var result = new Result<T>(_logger);
+            return result;
+        }
     }
 }

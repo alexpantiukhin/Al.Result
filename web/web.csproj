@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Al.Result\Al.Result.csproj" />
+    <PackageReference Include="Al.Result" Version="1.0.6" />
   </ItemGroup>
 
 </Project>
