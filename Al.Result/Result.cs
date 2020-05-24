@@ -93,17 +93,10 @@ namespace Al
             return Success.ToString();
         }
 
-        //public static Result<T> GetErrorResult(Exception e, string userMessage, string adminMessage = null, ILogger logger = null)
-        //{
-        //    Result<T> result = new Result<T>();
-        //    var message = (adminMessage == null ? "" : (adminMessage + ". ")) + "Ошибка:" + e?.Message;
-
-        //    if (logger != null)
-        //        logger.LogError(e, message);
-
-        //    result.AddError(userMessage, message);
-
-        //    return result;
-        //}
+        public Result<T> AddModel(T model)
+        {
+            Model = model;
+            return this;
+        }
     }
 }
