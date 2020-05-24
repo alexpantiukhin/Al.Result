@@ -4,7 +4,7 @@ using System;
 
 namespace Al
 {
-    public class Result
+    public class Result : IResult
     {
         public bool Success { get; private set; } = true;
         public string UserMessage { get; private set; }
@@ -13,17 +13,13 @@ namespace Al
 
         protected ILogger _logger;
 
-        //public Result()
-        //{
 
-        //}
-
-        public Result(ILogger logger)// : this()
+        public Result(ILogger logger)
         {
             _logger = logger;
         }
 
-        public Result AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
+        public IResult AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
         {
             if (_logger != null)
             {
@@ -35,7 +31,7 @@ namespace Al
             return this;
         }
 
-        public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0)
+        public IResult AddError(string userMessage, string adminMessage = null, int errorCode = 0)
         {
             Success = false;
             UserMessage = userMessage;
@@ -45,7 +41,7 @@ namespace Al
             return this;
         }
 
-        public Result AddError(Exception e, string userMessage, int errorCode = 0)
+        public IResult AddError(Exception e, string userMessage, int errorCode = 0)
         {
             var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
@@ -64,7 +60,7 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public Result AddSuccess(string userMessage, string adminMessage = null)
+        public IResult AddSuccess(string userMessage, string adminMessage = null)
         {
             if (Success)
             {
@@ -80,23 +76,16 @@ namespace Al
             return Success.ToString();
         }
 
-        public Result<T> Convert<T>()
+        public IResult<T> Convert<T>()
         {
             var result = new Result<T>(_logger);
+
+            if (Success)
+                AddSuccess(UserMessage, AdminMessage);
+            else
+                AddError(UserMessage, AdminMessage, ErrorCode);
+
             return result;
         }
-
-        /// <summary>
-        /// Конвертирует в ошибку другого типа
-        /// </summary>
-        /// <typeparam name="TNew"></typeparam>
-        /// <returns></returns>
-        public Result<T> ToError<T>()
-        {
-            var result = new Result<T>(_logger);
-            result.AddError(UserMessage, AdminMessage);
-            return result;
-        }
-
     }
 }
