@@ -4,15 +4,14 @@ using System;
 
 namespace Al
 {
-    public class Result<T>
+    public class Result
     {
-        public T Model { get; set; }
         public bool Success { get; private set; } = true;
         public string UserMessage { get; private set; }
         public string AdminMessage { get; private set; }
         public int ErrorCode { get; private set; }
 
-        private ILogger _logger;
+        protected ILogger _logger;
 
         //public Result()
         //{
@@ -24,7 +23,7 @@ namespace Al
             _logger = logger;
         }
 
-        public Result<T> AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
+        public Result AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
         {
             if (_logger != null)
             {
@@ -36,7 +35,7 @@ namespace Al
             return this;
         }
 
-        public Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0)
+        public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0)
         {
             Success = false;
             UserMessage = userMessage;
@@ -46,7 +45,7 @@ namespace Al
             return this;
         }
 
-        public Result<T> AddError(Exception e, string userMessage, int errorCode = 0)
+        public Result AddError(Exception e, string userMessage, int errorCode = 0)
         {
             var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
@@ -65,7 +64,7 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public Result<T> AddSuccess(string userMessage, string adminMessage = null)
+        public Result AddSuccess(string userMessage, string adminMessage = null)
         {
             if (Success)
             {
@@ -76,27 +75,9 @@ namespace Al
             return this;
         }
 
-        /// <summary>
-        /// Конвертирует в ошибку другого типа
-        /// </summary>
-        /// <typeparam name="TNew"></typeparam>
-        /// <returns></returns>
-        public Result<TNew> ToError<TNew>()
-        {
-            var result = new Result<TNew>(_logger);
-            result.AddError(UserMessage, AdminMessage);
-            return result;
-        }
-
         public override string ToString()
         {
             return Success.ToString();
-        }
-
-        public Result<T> AddModel(T model)
-        {
-            Model = model;
-            return this;
         }
     }
 }
