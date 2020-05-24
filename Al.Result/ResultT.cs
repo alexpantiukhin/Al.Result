@@ -17,18 +17,6 @@ namespace Al
         }
 
 
-        /// <summary>
-        /// Конвертирует в ошибку другого типа
-        /// </summary>
-        /// <typeparam name="TNew"></typeparam>
-        /// <returns></returns>
-        public Result<TNew> ToError<TNew>()
-        {
-            var result = new Result<TNew>(_logger);
-            result.AddError(UserMessage, AdminMessage);
-            return result;
-        }
-
         public override string ToString()
         {
             return Success.ToString();

@@ -85,5 +85,18 @@ namespace Al
             var result = new Result<T>(_logger);
             return result;
         }
+
+        /// <summary>
+        /// Конвертирует в ошибку другого типа
+        /// </summary>
+        /// <typeparam name="TNew"></typeparam>
+        /// <returns></returns>
+        public Result<T> ToError<T>()
+        {
+            var result = new Result<T>(_logger);
+            result.AddError(UserMessage, AdminMessage);
+            return result;
+        }
+
     }
 }
