@@ -4,14 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Alexander Pantiukhin</Authors>
-    <Version>1.0.9</Version>
+    <Version>1.0.11</Version>
     <Description></Description>
     <Company>Alexander Pantiukhin</Company>
     <RootNamespace>Al</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Al.Result.Abstractions" Version="1.0.0" />
+    <PackageReference Include="Al.Result.Abstractions" Version="1.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.3" />
   </ItemGroup>
 

@@ -4,7 +4,7 @@ using System;
 
 namespace Al
 {
-    public class Result : IResult
+    public class Result<T>
     {
         public bool Success { get; private set; } = true;
         public string UserMessage { get; private set; }
@@ -14,24 +14,34 @@ namespace Al
         protected ILogger _logger;
 
 
-        public Result(ILogger logger)
+        public Result(ILogger logger = null)
         {
             _logger = logger;
         }
 
-        public IResult AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
+        public Result<T> AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
         {
-            if (_logger != null)
-            {
-                _logger.Log(logLevel, "Error code: " + errorCode + ". Error message: " + (string.IsNullOrWhiteSpace(adminMessage) ? userMessage : adminMessage));
-            }
-
             AddError(userMessage, adminMessage, errorCode);
+
+            SendLog(logLevel, userMessage, adminMessage, errorCode);
 
             return this;
         }
 
-        public IResult AddError(string userMessage, string adminMessage = null, int errorCode = 0)
+        private void SendLog(LogLevel logLevel, string userMessage, string adminMessage, int errorCode, Exception e = null)
+        {
+            if (_logger != null)
+            {
+                var message = "Error code: " + errorCode + ". Error message: " + (string.IsNullOrWhiteSpace(adminMessage) ? userMessage : adminMessage);
+
+                if (e == null)
+                    _logger.Log(logLevel, e, message);
+                else
+                    _logger.Log(logLevel, message);
+            }
+        }
+
+        public Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0)
         {
             Success = false;
             UserMessage = userMessage;
@@ -41,14 +51,20 @@ namespace Al
             return this;
         }
 
-        public IResult AddError(Exception e, string userMessage, int errorCode = 0)
+        public Result<T> AddError(Exception e, string userMessage, int errorCode = 0)
         {
             var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
-            if (_logger != null)
-            {
-                _logger.LogError(e, message);
-            }
+            AddError(userMessage, message, errorCode);
+
+            return this;
+        }
+
+        public Result<T> AddError(Exception e, string userMessage, LogLevel logLevel, int errorCode = 0)
+        {
+            var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
+
+            SendLog(logLevel, userMessage, message, errorCode, e);
 
             AddError(userMessage, message, errorCode);
 
@@ -60,7 +76,7 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public IResult AddSuccess(string userMessage, string adminMessage = null)
+        public Result<T> AddSuccess(string userMessage, string adminMessage = null)
         {
             if (Success)
             {
@@ -76,7 +92,7 @@ namespace Al
             return Success.ToString();
         }
 
-        public IResult<T> Convert<T>()
+        public Result<T> Convert<T>()
         {
             var result = new Result<T>(_logger);
 
@@ -86,6 +102,14 @@ namespace Al
                 AddError(UserMessage, AdminMessage, ErrorCode);
 
             return result;
+        }
+
+        public T Model { get; set; }
+
+        public Result<T> AddModel(T model)
+        {
+            Model = model;
+            return this;
         }
     }
 }
