@@ -97,9 +97,9 @@ namespace Al
             var result = new Result<T>(_logger);
 
             if (Success)
-                AddSuccess(UserMessage, AdminMessage);
+                result.AddSuccess(UserMessage, AdminMessage);
             else
-                AddError(UserMessage, AdminMessage, ErrorCode);
+                result.AddError(UserMessage, AdminMessage, ErrorCode);
 
             return result;
         }
