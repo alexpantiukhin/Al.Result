@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Alexander Pantiukhin</Authors>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <Description></Description>
     <Company>Alexander Pantiukhin</Company>
     <RootNamespace>Al</RootNamespace>

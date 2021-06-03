@@ -4,12 +4,12 @@ using System;
 
 namespace Al
 {
-    public class Result<T>
+    public class Result
     {
-        public bool Success { get; private set; } = true;
-        public string UserMessage { get; private set; }
-        public string AdminMessage { get; private set; }
-        public int ErrorCode { get; private set; }
+        public bool Success { get; protected set; } = true;
+        public string UserMessage { get; protected set; }
+        public string AdminMessage { get; protected set; }
+        public int ErrorCode { get; protected set; }
 
         protected ILogger _logger;
 
@@ -19,7 +19,15 @@ namespace Al
             _logger = logger;
         }
 
-        public Result<T> AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
+        /// <summary>
+        /// Записывает ошибку в результат и в лог при наличии
+        /// </summary>
+        /// <param name="userMessage"></param>
+        /// <param name="adminMessage"></param>
+        /// <param name="logLevel"></param>
+        /// <param name="errorCode"></param>
+        /// <returns></returns>
+        public Result AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
         {
             AddError(userMessage, adminMessage, errorCode);
 
@@ -28,20 +36,7 @@ namespace Al
             return this;
         }
 
-        private void SendLog(LogLevel logLevel, string userMessage, string adminMessage, int errorCode, Exception e = null)
-        {
-            if (_logger != null)
-            {
-                var message = "Error code: " + errorCode + ". Error message: " + (string.IsNullOrWhiteSpace(adminMessage) ? userMessage : adminMessage);
-
-                if (e == null)
-                    _logger.Log(logLevel, e, message);
-                else
-                    _logger.Log(logLevel, message);
-            }
-        }
-
-        public Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0)
+        public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0)
         {
             Success = false;
             UserMessage = userMessage;
@@ -51,7 +46,7 @@ namespace Al
             return this;
         }
 
-        public Result<T> AddError(Exception e, string userMessage, int errorCode = 0)
+        public Result AddError(Exception e, string userMessage, int errorCode = 0)
         {
             var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
@@ -60,7 +55,15 @@ namespace Al
             return this;
         }
 
-        public Result<T> AddError(Exception e, string userMessage, LogLevel logLevel, int errorCode = 0)
+        /// <summary>
+        /// Добавляет ошибку к результату и записывает в лог при наличии
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="userMessage"></param>
+        /// <param name="logLevel"></param>
+        /// <param name="errorCode"></param>
+        /// <returns></returns>
+        public Result AddError(Exception e, string userMessage, LogLevel logLevel, int errorCode = 0)
         {
             var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
@@ -76,7 +79,7 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public Result<T> AddSuccess(string userMessage, string adminMessage = null)
+        public Result AddSuccess(string userMessage, string adminMessage = null)
         {
             if (Success)
             {
@@ -92,26 +95,38 @@ namespace Al
             return Success.ToString();
         }
 
-        public Result<TNew> Convert<TNew>()
+        //public Result<TNew> Convert<TNew>()
+        //{
+        //    var result = new Result<TNew>(_logger);
+
+        //    if (Success)
+        //        result.AddSuccess(UserMessage, AdminMessage);
+        //    else
+        //        result.AddError(UserMessage, AdminMessage, ErrorCode);
+
+        //    return result;
+        //}
+
+
+        //public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null)
+        //{
+        //    UserMessage = userMessage;
+        //    AdminMessage = adminMessage;
+        //    Model = model;
+        //    return this;
+        //}
+
+        protected void SendLog(LogLevel logLevel, string userMessage, string adminMessage, int errorCode, Exception e = null)
         {
-            var result = new Result<TNew>(_logger);
+            if (_logger != null)
+            {
+                var message = $"Error code: {errorCode}. Error message: {(string.IsNullOrWhiteSpace(adminMessage) ? userMessage : adminMessage)}";
 
-            if (Success)
-                result.AddSuccess(UserMessage, AdminMessage);
-            else
-                result.AddError(UserMessage, AdminMessage, ErrorCode);
-
-            return result;
-        }
-
-        public T Model { get; set; }
-
-        public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null)
-        {
-            UserMessage = userMessage;
-            AdminMessage = adminMessage;
-            Model = model;
-            return this;
+                if (e == null)
+                    _logger.Log(logLevel, e, message);
+                else
+                    _logger.Log(logLevel, message);
+            }
         }
     }
 }
