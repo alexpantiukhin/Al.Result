@@ -2,34 +2,38 @@
 
 namespace Al
 {
+    /// <summary>
+    /// Универсальная типизированная модель результата любых действий, содержащая
+    /// флаг успешности действия, сообщения пользователю и администратору,
+    /// а также производящая запись в лог при необходимости
+    /// </summary>
     public class Result<T> : Result
     {
+        /// <summary>
+        /// Модель результата
+        /// </summary>
         public T Model { get; private set; }
-        
 
-        public Result(ILogger logger = null)
-        {
-            _logger = logger;
-        }
+        public Result(ILogger logger = null) : base(logger) { }
 
-        public Result<TNew> Convert<TNew>()
-        {
-            var result = new Result<TNew>(_logger);
-
-            if (Success)
-                result.AddSuccess(UserMessage, AdminMessage);
-            else
-                result.AddError(UserMessage, AdminMessage, ErrorCode);
-
-            return result;
-        }
-
-
+        /// <summary>
+        /// Добавляет модель к результату, даже если до этого была ошибка.
+        /// Сообщения добавляются, если не было ошибки
+        /// </summary>
+        /// <param name="model">Модель, которую нужно вернуть</param>
+        /// <param name="userMessage">Сообщение пользователю</param>
+        /// <param name="adminMessage">Сообщение администратору</param>
+        /// <returns></returns>
         public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null)
         {
-            UserMessage = userMessage;
-            AdminMessage = adminMessage;
             Model = model;
+
+            if (Success)
+            {
+                UserMessage = userMessage;
+                AdminMessage = adminMessage;
+            }
+            
             return this;
         }
 

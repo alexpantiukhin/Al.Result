@@ -4,6 +4,11 @@ using System;
 
 namespace Al
 {
+    /// <summary>
+    /// Универсальная модель результата любых действий, содержащая
+    /// флаг успешности действия, сообщения пользователю и администратору,
+    /// а также производящая запись в лог при необходимости
+    /// </summary>
     public class Result
     {
         public bool Success { get; protected set; } = true;
@@ -20,56 +25,40 @@ namespace Al
         }
 
         /// <summary>
-        /// Записывает ошибку в результат и в лог при наличии
+        /// Записывает ошибку в результат и записывает в лог при наличии
         /// </summary>
-        /// <param name="userMessage"></param>
-        /// <param name="adminMessage"></param>
-        /// <param name="logLevel"></param>
-        /// <param name="errorCode"></param>
+        /// <param name="userMessage">Сообщение пользователю</param>
+        /// <param name="adminMessage">Сообщение администратору</param>
+        /// <param name="errorCode">Код ошибки</param>
+        /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>
-        public Result AddError(string userMessage, string adminMessage, LogLevel logLevel, int errorCode = 0)
+        public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0, LogLevel? logLevel = null)
         {
-            AddError(userMessage, adminMessage, errorCode);
-
-            SendLog(logLevel, userMessage, adminMessage, errorCode);
-
-            return this;
-        }
-
-        public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0)
-        {
-            Success = false;
             UserMessage = userMessage;
             AdminMessage = adminMessage;
             ErrorCode = errorCode;
 
+            SendLog(logLevel);
             return this;
         }
 
-        public Result AddError(Exception e, string userMessage, int errorCode = 0)
-        {
-            var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
-
-            AddError(userMessage, message, errorCode);
-
-            return this;
-        }
 
         /// <summary>
         /// Добавляет ошибку к результату и записывает в лог при наличии
         /// </summary>
-        /// <param name="e"></param>
-        /// <param name="userMessage"></param>
-        /// <param name="logLevel"></param>
-        /// <param name="errorCode"></param>
+        /// <param name="e">Ошибка</param>
+        /// <param name="userMessage">Сообщение пользователю</param>
+        /// <param name="adminMessage">Сообщение администратору</param>
+        /// <param name="errorCode">Код ошибки</param>
+        /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>
-        public Result AddError(Exception e, string userMessage, LogLevel logLevel, int errorCode = 0)
+        public Result AddError(Exception e, string userMessage, int errorCode = 0, LogLevel? logLevel = null)
         {
-            var message = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
+            var adminMessage = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
 
-            SendLog(logLevel, userMessage, message, errorCode, e);
+            AddError(userMessage, adminMessage, errorCode, null);
 
-            AddError(userMessage, message, errorCode);
+            SendLog(logLevel, e);
 
             return this;
         }
@@ -79,15 +68,33 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public Result AddSuccess(string userMessage, string adminMessage = null)
+        public Result AddSuccess(string userMessage, string adminMessage = null, LogLevel? logLevel = null)
         {
             if (Success)
             {
                 UserMessage = userMessage;
                 AdminMessage = adminMessage;
+
+                SendLog(logLevel);
             }
 
             return this;
+        }
+        /// <summary>
+        /// Преобразует модель результата в модель типизированную другим типом
+        /// </summary>
+        /// <typeparam name="TNew">Новый тип</typeparam>
+        /// <returns></returns>
+        public Result<TNew> Convert<TNew>()
+        {
+            var result = new Result<TNew>(_logger);
+
+            if (Success)
+                result.AddSuccess(UserMessage, AdminMessage);
+            else
+                result.AddError(UserMessage, AdminMessage, ErrorCode);
+
+            return result;
         }
 
         public override string ToString()
@@ -95,37 +102,16 @@ namespace Al
             return Success.ToString();
         }
 
-        //public Result<TNew> Convert<TNew>()
-        //{
-        //    var result = new Result<TNew>(_logger);
-
-        //    if (Success)
-        //        result.AddSuccess(UserMessage, AdminMessage);
-        //    else
-        //        result.AddError(UserMessage, AdminMessage, ErrorCode);
-
-        //    return result;
-        //}
-
-
-        //public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null)
-        //{
-        //    UserMessage = userMessage;
-        //    AdminMessage = adminMessage;
-        //    Model = model;
-        //    return this;
-        //}
-
-        protected void SendLog(LogLevel logLevel, string userMessage, string adminMessage, int errorCode, Exception e = null)
+        protected void SendLog(LogLevel? logLevel, Exception e = null)
         {
-            if (_logger != null)
+            if (_logger != null && logLevel != null)
             {
-                var message = $"Error code: {errorCode}. Error message: {(string.IsNullOrWhiteSpace(adminMessage) ? userMessage : adminMessage)}";
+                var message = string.IsNullOrWhiteSpace(AdminMessage) ? UserMessage : AdminMessage;
 
                 if (e == null)
-                    _logger.Log(logLevel, e, message);
+                    _logger.Log(logLevel.Value, message);
                 else
-                    _logger.Log(logLevel, message);
+                    _logger.Log(logLevel.Value, e, message);
             }
         }
     }
