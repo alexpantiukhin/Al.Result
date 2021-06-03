@@ -92,9 +92,9 @@ namespace Al
             return Success.ToString();
         }
 
-        public Result<T> Convert<T>()
+        public Result<TNew> Convert<TNew>()
         {
-            var result = new Result<T>(_logger);
+            var result = new Result<TNew>(_logger);
 
             if (Success)
                 result.AddSuccess(UserMessage, AdminMessage);
@@ -106,8 +106,10 @@ namespace Al
 
         public T Model { get; set; }
 
-        public Result<T> AddModel(T model)
+        public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null)
         {
+            UserMessage = userMessage;
+            AdminMessage = adminMessage;
             Model = model;
             return this;
         }
