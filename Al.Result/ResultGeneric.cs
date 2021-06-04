@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using System;
+
 namespace Al
 {
     /// <summary>
@@ -24,16 +26,45 @@ namespace Al
         /// <param name="userMessage">Сообщение пользователю</param>
         /// <param name="adminMessage">Сообщение администратору</param>
         /// <returns></returns>
-        public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null)
+        public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null, LogLevel? logLevel = null)
         {
             Model = model;
 
             if (Success)
-            {
-                UserMessage = userMessage;
-                AdminMessage = adminMessage;
-            }
+                SetProps(userMessage, adminMessage, 0, logLevel, null);
             
+            return this;
+        }
+
+        /// <summary>
+        /// Записывает ошибку в результат и записывает в лог при наличии
+        /// </summary>
+        /// <param name="userMessage">Сообщение пользователю</param>
+        /// <param name="adminMessage">Сообщение администратору</param>
+        /// <param name="errorCode">Код ошибки</param>
+        /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
+        /// <returns></returns>
+        public new Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0, LogLevel? logLevel = null)
+        {
+            Success = false;
+            SetProps(userMessage, adminMessage, errorCode, logLevel, null);
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет ошибку к результату и записывает в лог при наличии
+        /// </summary>
+        /// <param name="e">Ошибка</param>
+        /// <param name="userMessage">Сообщение пользователю</param>
+        /// <param name="adminMessage">Сообщение администратору</param>
+        /// <param name="errorCode">Код ошибки</param>
+        /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
+        /// <returns></returns>
+        public new Result<T> AddError(Exception e, string userMessage, int errorCode = 0, LogLevel? logLevel = null)
+        {
+            Success = false;
+            var adminMessage = GetAdminErrorMessage(e);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, e);
             return this;
         }
 

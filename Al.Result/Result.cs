@@ -34,11 +34,8 @@ namespace Al
         /// <returns></returns>
         public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0, LogLevel? logLevel = null)
         {
-            UserMessage = userMessage;
-            AdminMessage = adminMessage;
-            ErrorCode = errorCode;
-
-            SendLog(logLevel);
+            Success = false;
+            SetProps(userMessage, adminMessage, errorCode, logLevel, null);
             return this;
         }
 
@@ -54,13 +51,32 @@ namespace Al
         /// <returns></returns>
         public Result AddError(Exception e, string userMessage, int errorCode = 0, LogLevel? logLevel = null)
         {
-            var adminMessage = "Ошибка: " + (e != null ? e.ToString() : "exception = null");
-
-            AddError(userMessage, adminMessage, errorCode, null);
-
-            SendLog(logLevel, e);
-
+            Success = false;
+            var adminMessage = GetAdminErrorMessage(e);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, e);
             return this;
+        }
+
+        protected void SetProps(string userMessage, string adminMessage, int errorCode, LogLevel? logLevel, Exception e)
+        {
+            UserMessage = userMessage;
+            AdminMessage = adminMessage;
+            ErrorCode = errorCode;
+
+            if (_logger != null && logLevel != null)
+            {
+                var message = string.IsNullOrWhiteSpace(AdminMessage) ? UserMessage : AdminMessage;
+
+                if (e == null)
+                    _logger.Log(logLevel.Value, message);
+                else
+                    _logger.Log(logLevel.Value, e, message);
+            }
+        }
+
+        protected string GetAdminErrorMessage(Exception e)
+        {
+            return "Ошибка: " + (e != null ? e.ToString() : "exception = null");
         }
 
         /// <summary>
@@ -71,12 +87,7 @@ namespace Al
         public Result AddSuccess(string userMessage, string adminMessage = null, LogLevel? logLevel = null)
         {
             if (Success)
-            {
-                UserMessage = userMessage;
-                AdminMessage = adminMessage;
-
-                SendLog(logLevel);
-            }
+                SetProps(userMessage, adminMessage, 0, logLevel, null);
 
             return this;
         }
@@ -100,19 +111,6 @@ namespace Al
         public override string ToString()
         {
             return Success.ToString();
-        }
-
-        protected void SendLog(LogLevel? logLevel, Exception e = null)
-        {
-            if (_logger != null && logLevel != null)
-            {
-                var message = string.IsNullOrWhiteSpace(AdminMessage) ? UserMessage : AdminMessage;
-
-                if (e == null)
-                    _logger.Log(logLevel.Value, message);
-                else
-                    _logger.Log(logLevel.Value, e, message);
-            }
         }
     }
 }
