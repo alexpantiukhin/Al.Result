@@ -3,8 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Alexander Pantiukhin</Authors>
-    <Version>2.1.2</Version>
+    <Version>2.2.0</Version>
     <Description></Description>
     <Company>Alexander Pantiukhin</Company>
     <RootNamespace>Al</RootNamespace>

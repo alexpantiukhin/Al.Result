@@ -16,6 +16,12 @@ namespace Al
         /// </summary>
         public T Model { get; private set; }
 
+        private Result() { }
+
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="logger"></param>
         public Result(ILogger logger = null) : base(logger) { }
 
         /// <summary>
@@ -25,6 +31,7 @@ namespace Al
         /// <param name="model">Модель, которую нужно вернуть</param>
         /// <param name="userMessage">Сообщение пользователю</param>
         /// <param name="adminMessage">Сообщение администратору</param>
+        /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>
         public Result<T> AddModel(T model, string userMessage = null, string adminMessage = null, LogLevel? logLevel = null)
         {
@@ -56,7 +63,6 @@ namespace Al
         /// </summary>
         /// <param name="e">Ошибка</param>
         /// <param name="userMessage">Сообщение пользователю</param>
-        /// <param name="adminMessage">Сообщение администратору</param>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>

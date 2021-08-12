@@ -11,14 +11,34 @@ namespace Al
     /// </summary>
     public class Result
     {
+        /// <summary>
+        /// Статус результата
+        /// </summary>
         public bool Success { get; protected set; } = true;
+        /// <summary>
+        /// Сообщение пользователям
+        /// </summary>
         public string UserMessage { get; protected set; }
+        /// <summary>
+        /// Сообщение администраторам
+        /// </summary>
         public string AdminMessage { get; protected set; }
+        /// <summary>
+        /// Код ошибки
+        /// </summary>
         public int ErrorCode { get; protected set; }
+        /// <summary>
+        /// Логгер
+        /// </summary>
 
         protected ILogger _logger;
 
+        private Result() { }
 
+        /// <summary>
+        /// Конструктор
+        /// </summary>
+        /// <param name="logger"></param>
         public Result(ILogger logger = null)
         {
             _logger = logger;
@@ -45,7 +65,6 @@ namespace Al
         /// </summary>
         /// <param name="e">Ошибка</param>
         /// <param name="userMessage">Сообщение пользователю</param>
-        /// <param name="adminMessage">Сообщение администратору</param>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>
@@ -57,6 +76,14 @@ namespace Al
             return this;
         }
 
+        /// <summary>
+        /// Устанавливает свойства
+        /// </summary>
+        /// <param name="userMessage"></param>
+        /// <param name="adminMessage"></param>
+        /// <param name="errorCode"></param>
+        /// <param name="logLevel"></param>
+        /// <param name="e"></param>
         protected void SetProps(string userMessage, string adminMessage, int errorCode, LogLevel? logLevel, Exception e)
         {
             UserMessage = userMessage;
@@ -74,6 +101,11 @@ namespace Al
             }
         }
 
+        /// <summary>
+        /// Создаёт сообение об ошибке 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
         protected string GetAdminErrorMessage(Exception e)
         {
             return "Ошибка: " + (e != null ? e.ToString() : "exception = null");
@@ -91,23 +123,27 @@ namespace Al
 
             return this;
         }
+        ///// <summary>
+        ///// Преобразует модель результата в модель типизированную другим типом
+        ///// </summary>
+        ///// <typeparam name="TNew">Новый тип</typeparam>
+        ///// <returns></returns>
+        //public Result<TNew> Convert<TNew>()
+        //{
+        //    var result = new Result<TNew>(_logger);
+
+        //    if (Success)
+        //        result.AddSuccess(UserMessage, AdminMessage);
+        //    else
+        //        result.AddError(UserMessage, AdminMessage, ErrorCode);
+
+        //    return result;
+        //}
+
         /// <summary>
-        /// Преобразует модель результата в модель типизированную другим типом
+        /// Преобразует модель в строку
         /// </summary>
-        /// <typeparam name="TNew">Новый тип</typeparam>
         /// <returns></returns>
-        public Result<TNew> Convert<TNew>()
-        {
-            var result = new Result<TNew>(_logger);
-
-            if (Success)
-                result.AddSuccess(UserMessage, AdminMessage);
-            else
-                result.AddError(UserMessage, AdminMessage, ErrorCode);
-
-            return result;
-        }
-
         public override string ToString()
         {
             return Success.ToString();
