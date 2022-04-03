@@ -33,6 +33,8 @@ namespace Al
 
         protected ILogger _logger;
 
+        LogLevel? LogLevel;
+
         private Result() { }
 
         /// <summary>
@@ -51,11 +53,17 @@ namespace Al
         /// <param name="adminMessage">Сообщение администратору</param>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
+        /// <param name="writeLog">необходимо ли записать в лог</param>
         /// <returns></returns>
-        public Result AddError(string userMessage, string adminMessage = null, int errorCode = 0, LogLevel? logLevel = null)
+        public Result AddError(
+            string userMessage,
+            string adminMessage = null,
+            int errorCode = 0,
+            LogLevel? logLevel = null,
+            bool writeLog = true)
         {
             Success = false;
-            SetProps(userMessage, adminMessage, errorCode, logLevel, null);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, null, writeLog);
             return this;
         }
 
@@ -67,12 +75,17 @@ namespace Al
         /// <param name="userMessage">Сообщение пользователю</param>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
+        /// <param name="writeLog">необходимо ли записать в лог</param>
         /// <returns></returns>
-        public Result AddError(Exception e, string userMessage, int errorCode = 0, LogLevel? logLevel = null)
+        public Result AddError(Exception e,
+            string userMessage,
+            int errorCode = 0,
+            LogLevel? logLevel = null,
+            bool writeLog = true)
         {
             Success = false;
             var adminMessage = GetAdminErrorMessage(e);
-            SetProps(userMessage, adminMessage, errorCode, logLevel, e);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, e, writeLog);
             return this;
         }
 
@@ -84,13 +97,20 @@ namespace Al
         /// <param name="errorCode"></param>
         /// <param name="logLevel"></param>
         /// <param name="e"></param>
-        protected void SetProps(string userMessage, string adminMessage, int errorCode, LogLevel? logLevel, Exception e)
+        /// <param name="writeLog">необходимо ли записать в лог</param>
+        protected void SetProps(string userMessage,
+            string adminMessage,
+            int errorCode,
+            LogLevel? logLevel,
+            Exception e,
+            bool writeLog = true)
         {
             UserMessage = userMessage;
             AdminMessage = adminMessage;
             ErrorCode = errorCode;
+            LogLevel = logLevel;
 
-            if (_logger != null && logLevel != null)
+            if (writeLog && _logger != null && logLevel != null)
             {
                 var message = string.IsNullOrWhiteSpace(AdminMessage) ? UserMessage : AdminMessage;
 
@@ -116,29 +136,35 @@ namespace Al
         /// </summary>
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
-        public Result AddSuccess(string userMessage, string adminMessage = null, LogLevel? logLevel = null)
+        /// <param name="logLevel"></param>
+        /// <param name="writeLog">необходимо ли записать в лог</param>
+        public Result AddSuccess(string userMessage, 
+            string adminMessage = null,
+            LogLevel? logLevel = null,
+            bool writeLog = false)
         {
             if (Success)
-                SetProps(userMessage, adminMessage, 0, logLevel, null);
+                SetProps(userMessage, adminMessage, 0, logLevel, null, writeLog);
 
             return this;
         }
-        ///// <summary>
-        ///// Преобразует модель результата в модель типизированную другим типом
-        ///// </summary>
-        ///// <typeparam name="TNew">Новый тип</typeparam>
-        ///// <returns></returns>
-        //public Result<TNew> Convert<TNew>()
-        //{
-        //    var result = new Result<TNew>(_logger);
 
-        //    if (Success)
-        //        result.AddSuccess(UserMessage, AdminMessage);
-        //    else
-        //        result.AddError(UserMessage, AdminMessage, ErrorCode);
+        /// <summary>
+        /// Преобразует модель результата в модель типизированную другим типом
+        /// </summary>
+        /// <typeparam name="TNew">Новый тип</typeparam>
+        /// <returns>Результат, типизированный новым типом</returns>
+        public Result<TNew> Convert<TNew>()
+        {
+            var result = new Result<TNew>(_logger);
 
-        //    return result;
-        //}
+            if (Success)
+                result.AddSuccess(UserMessage, AdminMessage, LogLevel, false);
+            else
+                result.AddError(UserMessage, AdminMessage, ErrorCode, LogLevel, false);
+
+            return result;
+        }
 
         /// <summary>
         /// Преобразует модель в строку
