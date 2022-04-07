@@ -51,7 +51,7 @@ namespace Al
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>
-        public new Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0, LogLevel? logLevel = null)
+        public Result<T> AddError(string userMessage, string adminMessage = null, int errorCode = 0, LogLevel? logLevel = null)
         {
             Success = false;
             SetProps(userMessage, adminMessage, errorCode, logLevel, null);
@@ -66,7 +66,7 @@ namespace Al
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
         /// <returns></returns>
-        public new Result<T> AddError(Exception e, string userMessage, int errorCode = 0, LogLevel? logLevel = null)
+        public Result<T> AddError(Exception e, string userMessage, int errorCode = 0, LogLevel? logLevel = null)
         {
             Success = false;
             var adminMessage = GetAdminErrorMessage(e);
