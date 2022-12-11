@@ -24,10 +24,17 @@
     </None>
   </ItemGroup>
 
-  
-  <Target Name="CopyNugetPackage" AfterTargets="Build">
-    <Exec Command="dotnet pack $(ProjectPath)" />
-    <Copy SourceFiles="$(ProjectDir)bin\$(ConfigurationName)\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="c:\google\nuget" />
-  </Target>
+
+	<Target Name="CopyNugetPackage" AfterTargets="Build">
+		<PropertyGroup>
+			<OutputFolder>$([System.IO.Path]::GetPathRoot('$(MSBuildProjectDirectory)'))GitRepositories\nuget</OutputFolder>
+			<FileName>$(PackageId).$(PackageVersion).nupkg</FileName>
+		</PropertyGroup>
+		<Exec Command="dotnet pack $(ProjectPath)" />
+		<Copy SourceFiles="$(ProjectDir)bin\$(ConfigurationName)\$(FileName)" DestinationFolder="$(OutputFolder)" />
+		<Exec Command="git add $(FileName)" WorkingDirectory="$(OutputFolder)"/>
+		<Exec Command="git commit -m $(FileName)" WorkingDirectory="$(OutputFolder)"/>
+		<Exec Command="git push origin master" WorkingDirectory="$(OutputFolder)"/>
+	</Target>
 
 </Project>
