@@ -30,8 +30,7 @@ namespace Al
         /// <summary>
         /// Логгер
         /// </summary>
-
-        protected ILogger _logger;
+        private ILogger _logger;
 
         LogLevel? LogLevel;
 
