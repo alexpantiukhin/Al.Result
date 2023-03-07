@@ -68,7 +68,7 @@ namespace Al
 
 
         /// <summary>
-        /// Добавляет ошибку к результату и записывает в лог при наличии
+        /// Добавляет ошибку к результату и записывает в лог при наличии и необходимости
         /// </summary>
         /// <param name="e">Ошибка</param>
         /// <param name="userMessage">Сообщение пользователю</param>
@@ -85,6 +85,23 @@ namespace Al
             Success = false;
             var adminMessage = GetAdminErrorMessage(e);
             SetProps(userMessage, adminMessage, errorCode, logLevel, e, writeLog);
+            return this;
+        }
+
+        /// <summary>
+        /// Добавляет ошибку к результату и записывает в лог при наличиии и необходимости
+        /// </summary>
+        /// <param name="errorCode">Код ошибки</param>
+        /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
+        /// <param name="writeLog">необходимо ли записать в лог</param>
+        /// <param name="userMessage">Сообщение пользователю</param>
+        /// <param name="adminMessage">Сообщение администратору</param>
+        /// <returns></returns>
+        public Result AddError(int errorCode, LogLevel? logLevel = null, bool writeLog = true,
+            string userMessage = null, string adminMessage = null)
+        {
+            Success = false;
+            SetProps(userMessage, adminMessage, errorCode, logLevel, null, writeLog);
             return this;
         }
 
