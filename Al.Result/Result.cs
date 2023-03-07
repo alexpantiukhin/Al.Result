@@ -30,9 +30,9 @@ namespace Al
         /// <summary>
         /// Логгер
         /// </summary>
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
-        LogLevel? LogLevel;
+        private LogLevel? _logLevel;
 
         private Result() { }
 
@@ -52,17 +52,15 @@ namespace Al
         /// <param name="adminMessage">Сообщение администратору</param>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
-        /// <param name="writeLog">необходимо ли записать в лог</param>
         /// <returns></returns>
         public Result AddError(
             string userMessage,
             string adminMessage = null,
             int errorCode = 0,
-            LogLevel? logLevel = null,
-            bool writeLog = true)
+            LogLevel? logLevel = null)
         {
             Success = false;
-            SetProps(userMessage, adminMessage, errorCode, logLevel, null, writeLog);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, null);
             return this;
         }
 
@@ -74,17 +72,15 @@ namespace Al
         /// <param name="userMessage">Сообщение пользователю</param>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
-        /// <param name="writeLog">необходимо ли записать в лог</param>
         /// <returns></returns>
         public Result AddError(Exception e,
             string userMessage,
             int errorCode = 0,
-            LogLevel? logLevel = null,
-            bool writeLog = true)
+            LogLevel? logLevel = null)
         {
             Success = false;
             var adminMessage = GetAdminErrorMessage(e);
-            SetProps(userMessage, adminMessage, errorCode, logLevel, e, writeLog);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, e);
             return this;
         }
 
@@ -93,15 +89,14 @@ namespace Al
         /// </summary>
         /// <param name="errorCode">Код ошибки</param>
         /// <param name="logLevel">Уровень логгирования. Если передан, то ошибка записывается в лог</param>
-        /// <param name="writeLog">необходимо ли записать в лог</param>
         /// <param name="userMessage">Сообщение пользователю</param>
         /// <param name="adminMessage">Сообщение администратору</param>
         /// <returns></returns>
-        public Result AddError(int errorCode, LogLevel? logLevel = null, bool writeLog = true,
+        public Result AddError(int errorCode, LogLevel? logLevel = null,
             string userMessage = null, string adminMessage = null)
         {
             Success = false;
-            SetProps(userMessage, adminMessage, errorCode, logLevel, null, writeLog);
+            SetProps(userMessage, adminMessage, errorCode, logLevel, null);
             return this;
         }
 
@@ -113,28 +108,25 @@ namespace Al
         /// <param name="errorCode"></param>
         /// <param name="logLevel"></param>
         /// <param name="e"></param>
-        /// <param name="writeLog">необходимо ли записать в лог</param>
         protected void SetProps(string userMessage,
             string adminMessage,
             int errorCode,
             LogLevel? logLevel,
-            Exception e,
-            bool writeLog = true)
+            Exception e)
         {
             UserMessage = userMessage;
             AdminMessage = adminMessage;
             ErrorCode = errorCode;
-            LogLevel = logLevel;
+            _logLevel = logLevel;
 
-            if (writeLog && _logger != null && logLevel != null)
-            {
-                var message = string.IsNullOrWhiteSpace(AdminMessage) ? UserMessage : AdminMessage;
+            if (_logger == null || logLevel == null) return;
 
-                if (e == null)
-                    _logger.Log(logLevel.Value, message);
-                else
-                    _logger.Log(logLevel.Value, e, message);
-            }
+            var message = string.IsNullOrWhiteSpace(AdminMessage) ? UserMessage : AdminMessage;
+
+            if (e == null)
+                _logger.Log(logLevel.Value, message);
+            else
+                _logger.Log(logLevel.Value, e, message);
         }
 
         /// <summary>
@@ -153,14 +145,12 @@ namespace Al
         /// <param name="userMessage"></param>
         /// <param name="adminMessage"></param>
         /// <param name="logLevel"></param>
-        /// <param name="writeLog">необходимо ли записать в лог</param>
         public Result AddSuccess(string userMessage, 
             string adminMessage = null,
-            LogLevel? logLevel = null,
-            bool writeLog = false)
+            LogLevel? logLevel = null)
         {
             if (Success)
-                SetProps(userMessage, adminMessage, 0, logLevel, null, writeLog);
+                SetProps(userMessage, adminMessage, 0, logLevel, null);
 
             return this;
         }
@@ -175,9 +165,9 @@ namespace Al
             var result = new Result<TNew>(_logger);
 
             if (Success)
-                result.AddSuccess(UserMessage, AdminMessage, LogLevel, false);
+                result.AddSuccess(UserMessage, AdminMessage, _logLevel);
             else
-                result.AddError(UserMessage, AdminMessage, ErrorCode, LogLevel, false);
+                result.AddError(UserMessage, AdminMessage, ErrorCode, _logLevel);
 
             return result;
         }

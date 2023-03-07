@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Alexander Pantiukhin</Authors>
-    <Version>2.3.1</Version>
+    <Version>2.3.2</Version>
     <Description></Description>
     <Company>Alexander Pantiukhin</Company>
     <RootNamespace>Al</RootNamespace>
