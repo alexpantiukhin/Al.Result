@@ -1,0 +1,22 @@
+name: publish to nuget
+on:
+  push:
+    branches:
+      - master # Default release branch
+jobs:
+  publish:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 7.x
+          source-url: ${{ vars.NUGET_SOURCE }}/v3/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
+      - run: dotnet build --configuration Release ${{ github.event.repository.name }}
+      - name: Create the package
+        run: dotnet pack --configuration Release ${{ github.event.repository.name }}
+      - name: Publish the package to GPR
+        run: dotnet nuget push ${{ github.event.repository.name }}/bin/Release/*.nupkg -s ${{ vars.NUGET_SOURCE }} -k ${{ secrets.NUGET_API_KEY }} --skip-duplicate
